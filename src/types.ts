@@ -2,18 +2,18 @@ export type Dispatch<S> = (payload: Partial<S> | ((oldState: S) => Partial<S>)) 
 
 export type SetState = () => {}
 
-export type GetState<S, A extends string> = (namespace: Namespace) => Model<S, A>
+export type GetState = <S, A extends string>(namespace: Namespace) => FlatModel<S, A>
 
 export type Subscriber = { deps: Namespace[] | undefined, update: () => void }
 
 export type Actions<S, A extends string> = {
-  [key in A]: (state: S, options: { get: GetState<S, A>, dispatch: Dispatch<S> }) => Promise<any> | void
+  [key in A]: (state: S, options: { get: GetState, dispatch: Dispatch<S> }) => Promise<any> | void
 }
 
 export type Model<S, A extends string> = {
   state: S,
   actions: {
-    [key in A]: (state: S, options: { getState: GetState<S, A>, dispatch: Dispatch<S> }) => Promise<any> | void
+    [key in A]: (state: S, options: { getState: GetState, dispatch: Dispatch<S> }) => Promise<any> | void
   }
 }
 

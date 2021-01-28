@@ -21,7 +21,7 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
   if(!model.current) {
 
     /** 获取其他model的state */
-    const getState: GetState<S, A> = (name) => {
+    const getState: GetState = (name) => {
       return map.get(name)
     }
 
