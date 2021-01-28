@@ -6,19 +6,16 @@ export type GetState = <S, A extends string>(namespace: Namespace) => FlatModel<
 
 export type Subscriber = { deps: Namespace[] | undefined, update: () => void }
 
-export type Actions<S, A extends string> = {
-  [key in A]: (state: S, options: { get: GetState, dispatch: Dispatch<S> }) => Promise<any> | void
-}
-
 export type Model<S, A extends string> = {
   state: S,
   actions: {
-    [key in A]: (state: S, options: { getState: GetState, dispatch: Dispatch<S> }) => Promise<any> | void
+    [key in A]: (state: S, options: { getState: GetState, dispatch: Dispatch<S> }) => Promise<void> | void
   }
 }
 
+type Loading = Function & { loading: boolean }
 export type FlatModel<S, A extends string> = S & {
-  [key in A]: () => void
+  [key in A]: (() => void) & Loading
 }
 
 export type Namespace = string

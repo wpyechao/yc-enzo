@@ -20,6 +20,17 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
 
   if(!model.current) {
 
+    const notifyUpdate = () => {
+      // 通知其他的订阅更新
+      const subscribers = model.current[symbol]
+      const namespaces = getNamespaces()
+      subscribers.forEach(({ deps, update }) => {
+        if (!deps || namespaces.some((key) => deps.includes(key))) {
+          update()
+        }
+      });
+    }
+
     /** 获取其他model的state */
     const getState: GetState = (name) => {
       return map.get(name)
@@ -32,24 +43,26 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
         typeof payload === 'function' ? payload(map.get(namespace)) : payload
       )
 
-      // 通知其他的订阅更新
-      const subscribers = model.current[symbol]
-      const namespaces = getNamespaces()
-      subscribers.forEach(({ deps, update }) => {
-        if (!deps || namespaces.some((key) => deps.includes(key))) {
-          update()
-        }
-      });
+      notifyUpdate()
     }
 
     const { state, actions } = getMiddleModel<S, A>(namespace)
     const mixin = Object.entries({ ...state, ...actions })
-      .reduce<Model<S, A>>((res, [key, value]) => {
+      .reduce<FlatModel<S, A>>((res, [key, value]) => {
         if(typeof value === 'function') {
           return {
             ...res,
             [key]: () => {
-              value(map.get(namespace), { dispatch, getState })
+              const res: Promise<any> | void = value(map.get(namespace), { dispatch, getState })
+              if(!res || typeof res.then !== 'function') return
+              const self = map.get(namespace)[key] as (() => void) & { loading?: boolean }
+              self.loading = true
+              notifyUpdate()
+
+              res.finally(() => {
+                self.loading = false
+                notifyUpdate()
+              })
             }
           }
         }
@@ -57,9 +70,9 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
           ...res,
           [key]: value
         }
-      }, {} as Model<S, A>)
+      }, {} as FlatModel<S, A>)
     const _proto_ = Object.create({ [symbol]: new Set() })
-    const result = Object.assign<ModelWithSymbol<S, A>, Model<S, A>>(_proto_, mixin)
+    const result = Object.assign<ModelWithSymbol<S, A>, FlatModel<S, A>>(_proto_, mixin)
 
     model.current = result
     map.set(namespace, result)

@@ -5,22 +5,20 @@ export declare type Subscriber = {
     deps: Namespace[] | undefined;
     update: () => void;
 };
-export declare type Actions<S, A extends string> = {
-    [key in A]: (state: S, options: {
-        get: GetState;
-        dispatch: Dispatch<S>;
-    }) => Promise<any> | void;
-};
 export declare type Model<S, A extends string> = {
     state: S;
     actions: {
         [key in A]: (state: S, options: {
             getState: GetState;
             dispatch: Dispatch<S>;
-        }) => Promise<any> | void;
+        }) => Promise<void> | void;
     };
 };
+declare type Loading = Function & {
+    loading: boolean;
+};
 export declare type FlatModel<S, A extends string> = S & {
-    [key in A]: () => void;
+    [key in A]: (() => void) & Loading;
 };
 export declare type Namespace = string;
+export {};
