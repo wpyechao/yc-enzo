@@ -52,7 +52,7 @@ export default () => {
       <h1>{count}</h1>
       <h1>{name}</h1>
       <Button onClick={() => setCount()}>++</Button>
-      <Button onClick={() => setName()}>change name and count</Button>
+      <Button onClick={() => setName()}>change name</Button>
       <Button onClick={() => setNameAndCount()}>change name and count</Button>
     </div>
   )
