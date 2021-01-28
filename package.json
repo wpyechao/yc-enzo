@@ -1,0 +1,36 @@
+{
+  "name": "yc-enzo",
+  "version": "1.0.3",
+  "description": "react hooks library",
+  "main": "./lib/index.js",
+  "module": "./es/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "dist",
+    "lib",
+    "es",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "scripts": {
+    "start": "dumi dev",
+    "build": "tsc && father-build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "hooks"
+  ],
+  "author": "pingyechao",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "antd": "^4.7.0",
+    "dumi": "^1.0.33",
+    "eslint-config-pyc": "^2.0.2",
+    "father-build": "^1.18.1",
+    "react": "^16.13.1",
+    "typescript": "^3.9.6"
+  }
+}
