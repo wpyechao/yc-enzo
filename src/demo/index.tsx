@@ -19,7 +19,7 @@ createModel<State, Actions>('count', {
     setCount: (state, { dispatch }) => {
       dispatch({ count: state.count + 1 })
     },
-    setAsyncCount: async (state, { dispatch }) => {
+    async setAsyncCount (state, { dispatch }) {
       await wait()
       dispatch({ count: state.count + 1 })
     }
