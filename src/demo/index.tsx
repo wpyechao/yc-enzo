@@ -5,6 +5,7 @@ type State = {
   count: number,
 }
 type Actions = 'setCount'
+
 createModel<State, Actions>('count', {
   state: { count: 0 },
   actions: {
@@ -13,6 +14,7 @@ createModel<State, Actions>('count', {
     }
   }
 })
+
 const useCountModel = () => {
   return useModel<State, Actions>('count')
 }

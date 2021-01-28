@@ -1,14 +1,17 @@
 import { useEffect, useRef } from "react"
 import { getMiddleModel, getNamespaces } from "./create-model"
-import { Model, Namespace, Subscriber, Dispatch, GetState } from "./types"
+import { Model, Namespace, Subscriber, Dispatch, GetState, FlatModel } from "./types"
 import useUpdate from "./use-update"
 
 /** 唯一的值 */
 const symbol = Symbol()
 
-const map = new Map<Namespace, Model<any, any>>()
+/** 最终的值都在这 */
+const map = new Map<Namespace, FlatModel<any, any>>()
 
-type ModelWithSymbol<S, A extends string> = Model<S, A> & { [symbol]: Set<Subscriber> }
+type ModelWithSymbol<S, A extends string> = FlatModel<S, A> & { 
+  [symbol]: Set<Subscriber>
+}
 
 function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[]) {
   const updateSelf = useUpdate()
@@ -16,16 +19,20 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
   const model = useRef<ModelWithSymbol<S, A>>(map.get(namespace))
 
   if(!model.current) {
+
+    /** 获取其他model的state */
     const getState: GetState<S, A> = (name) => {
       return map.get(name)
     }
 
+    /** 修改自身的state */
     const dispatch: Dispatch<S> = (payload) => {
       model.current = Object.assign(
         model.current, 
         typeof payload === 'function' ? payload(map.get(namespace)) : payload
       )
 
+      // 通知其他的订阅更新
       const subscribers = model.current[symbol]
       const namespaces = getNamespaces()
       subscribers.forEach(({ deps, update }) => {

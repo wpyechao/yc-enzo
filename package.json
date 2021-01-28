@@ -14,7 +14,7 @@
     "package.json"
   ],
   "scripts": {
-    "start": "dumi dev",
+    "start": "npm run build && dumi dev",
     "build": "tsc && father-build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

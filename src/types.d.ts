@@ -11,7 +11,7 @@ export declare type Actions<S, A extends string> = {
         dispatch: Dispatch<S>;
     }) => Promise<any> | void;
 };
-export declare type MiddleModel<S, A extends string> = {
+export declare type Model<S, A extends string> = {
     state: S;
     actions: {
         [key in A]: (state: S, options: {
@@ -20,7 +20,7 @@ export declare type MiddleModel<S, A extends string> = {
         }) => Promise<any> | void;
     };
 };
-export declare type Model<S, A extends string> = S & {
+export declare type FlatModel<S, A extends string> = S & {
     [key in A]: () => void;
 };
 export declare type Namespace = string;
