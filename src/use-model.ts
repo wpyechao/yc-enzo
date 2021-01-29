@@ -1,17 +1,17 @@
 import { useEffect, useRef } from "react"
 import { getMiddleModel, getNamespaces } from "./create-model"
-import { Model, Namespace, Subscriber, Dispatch, GetState, FlatModel } from "./types"
+import { Namespace, Subscriber, Dispatch, GetState, FlatModel, LoadingFunction } from "./types"
 import useUpdate from "./use-update"
 
 /** 唯一的值 */
 const symbol = Symbol()
 
-/** 最终的值都在这 */
-const map = new Map<Namespace, FlatModel<any, any>>()
-
 type ModelWithSymbol<S, A extends string> = FlatModel<S, A> & { 
   [symbol]: Set<Subscriber>
 }
+
+/** 最终的值都在这 */
+const map = new Map<Namespace, FlatModel<any, any>>()
 
 function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[]) {
   const updateSelf = useUpdate()
@@ -20,8 +20,8 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
 
   if(!model.current) {
 
+    /** 通知其他的订阅更新 */
     const notifyUpdate = () => {
-      // 通知其他的订阅更新
       const subscribers = model.current[symbol]
       const namespaces = getNamespaces()
       subscribers.forEach(({ deps, update }) => {
@@ -42,7 +42,6 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
         model.current, 
         typeof payload === 'function' ? payload(map.get(namespace)) : payload
       )
-
       notifyUpdate()
     }
 
@@ -55,7 +54,8 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
             [key]: () => {
               const res: Promise<any> | void = value(map.get(namespace), { dispatch, getState })
               if(!res || typeof res.then !== 'function') return
-              const self = map.get(namespace)[key] as (() => void) & { loading?: boolean }
+              // 异步逻辑
+              const self = map.get(namespace)[key] as LoadingFunction
               self.loading = true
               notifyUpdate()
 
@@ -71,6 +71,7 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
           [key]: value
         }
       }, {} as FlatModel<S, A>)
+
     const _proto_ = Object.create({ [symbol]: new Set() })
     const result = Object.assign<ModelWithSymbol<S, A>, FlatModel<S, A>>(_proto_, mixin)
 
