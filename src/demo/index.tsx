@@ -1,69 +1,43 @@
-import { createModel, useModel } from 'yc-enzo'
 import * as React from 'react';
-import { Button } from 'antd';
+import { Badge, Button, Divider, Space } from 'antd';
+import useCountModel from './use-count-model';
+import useTimeModel from './use-time-model';
+import moment from 'moment'
 
-const wait = async () => {
-  return new Promise(r => setTimeout(r, 1000))
+const Count = () => {
+  const { count } = useCountModel()
+  return (
+    <Badge count={count} overflowCount={999}>
+      <div style={{height: 42, width: 42, borderRadius: 4, background: '#eee'}}></div>
+    </Badge>
+  )
 }
 
-type State = {
-  count: number,
-}
+const Time = () => {
+  const { now } = useTimeModel()
 
-type Actions = 'setCount' | 'setAsyncCount'
-createModel<State, Actions>('count', {
-  state: { 
-    count: 0 
-  },
-  actions: {
-    setCount: (state, { dispatch }) => {
-      dispatch({ count: state.count + 1 })
-    },
-    async setAsyncCount (state, { dispatch }) {
-      await wait()
-      dispatch({ count: state.count + 1 })
-    }
-  }
-})
-const useCountModel = () => {
-  return useModel<State, Actions>('count')
+  return (
+    <h1 style={{marginTop: 24}}>
+      现在时间——————{moment(now).format('YYYY-MM-DD HH:mm:ss')}
+    </h1>
+  )
 }
-
-
-type State1 = {
-  name: string,
-}
-type Actions1 = 'setName' | 'setNameAndCount'
-createModel<State1, Actions1>('name', {
-  state: { name: '' },
-  actions: {
-    setName: (state, { dispatch }) => {
-      console.log('prev state', state.name)
-      dispatch({ name: 'random name' + Math.random().toFixed(3) })
-    },
-    setNameAndCount: (state, { dispatch, getState }) => {
-      getState<State, Actions>('count').setCount()
-      dispatch({ name: 'random name' + Math.random().toFixed(3) })
-    }
-  }
-})
-const useNameModel = () => {
-  return useModel<State1, Actions1>('name')
-}
-
 
 
 export default () => {
-  const { count, setCount, setAsyncCount } = useCountModel()
-  const { name, setName, setNameAndCount } = useNameModel()
+  const { addCount, addCountAsync } = useCountModel()
+  const { updateFromComponent, updateFromModel } = useTimeModel()
   return (
     <div>
-      <h1>{count}</h1>
-      <h1>{name}</h1>
-      <Button onClick={() => setCount()}>++</Button>
-      <Button loading={setAsyncCount.loading} onClick={() => setAsyncCount()}>async ++</Button>
-      <Button onClick={() => setName()}>change name</Button>
-      <Button onClick={() => setNameAndCount()}>change name and count</Button>
+      <Space>
+        <Button onClick={() => addCount()}>count ++</Button>
+        <Button loading={addCountAsync.loading} onClick={() => addCountAsync()}>async count ++</Button>
+        <Button onClick={() => updateFromModel()}>updateFromModel</Button>
+        <Button onClick={() => updateFromComponent(Date.now())}>updateFromComponent</Button>
+      </Space>
+      <Divider />
+      <Count />
+      <Time />
     </div>
   )
 }

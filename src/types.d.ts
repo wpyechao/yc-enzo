@@ -10,11 +10,12 @@ export declare type Model<S, A extends string> = {
         [key in A]: (state: S, options: {
             getState: GetState;
             dispatch: Dispatch<S>;
+            payload?: any;
         }) => Promise<void> | void;
     };
 };
 export interface LoadingFunction {
-    (): void;
+    (payload?: any): void;
     loading?: boolean;
 }
 export declare type FlatModel<S, A extends string> = S & {

@@ -7,12 +7,12 @@ export type Subscriber = { deps: Namespace[] | undefined, update: () => void }
 export type Model<S, A extends string> = {
   state: S,
   actions: {
-    [key in A]: (state: S, options: { getState: GetState, dispatch: Dispatch<S> }) => Promise<void> | void
+    [key in A]: (state: S, options: { getState: GetState, dispatch: Dispatch<S>, payload?: any }) => Promise<void> | void
   }
 }
 
 export interface LoadingFunction {
-  (): void
+  (payload?: any): void
   loading?: boolean
 }
 export type FlatModel<S, A extends string> = S & {

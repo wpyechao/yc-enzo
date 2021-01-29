@@ -51,8 +51,8 @@ function useModel<S, A extends string>(namespace: Namespace, deps?: Namespace[])
         if(typeof value === 'function') {
           return {
             ...res,
-            [key]: () => {
-              const res: Promise<any> | void = value(map.get(namespace), { dispatch, getState })
+            [key]: (payload?: any) => {
+              const res: Promise<any> | void = value(map.get(namespace), { dispatch, getState, payload })
               if(!res || typeof res.then !== 'function') return
               // 异步逻辑
               const self = map.get(namespace)[key] as LoadingFunction
